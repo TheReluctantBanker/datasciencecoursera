@@ -1,0 +1,49 @@
+--Recipe for use of LAG  function 
+--lead function is used to access the data in the column of the previous row 
+
+
+USE SQL_Recipes;
+
+
+--TESTING 
+--SELECT TOP 10* FROM dbo.ExchangeRate
+
+--this is how the source data looks - sample
+/*
+Date	ExchangeRate
+2017-04-03 00:00:00.000	0.716094
+2017-04-04 00:00:00.000	0.714921
+2017-04-05 00:00:00.000	0.713417
+2017-04-06 00:00:00.000	0.713122
+2017-04-07 00:00:00.000	0.712702
+2017-04-08 00:00:00.000	0.7118
+2017-04-09 00:00:00.000	0.7118
+2017-04-10 00:00:00.000	0.71182
+2017-04-11 00:00:00.000	0.712809
+2017-04-12 00:00:00.000	0.714227
+*/
+
+--use the LAG function along with OCBC data
+--for each customer ID, we compare the current spend with previous spend
+
+--USING a CTE having LAG to access the previous row value 
+WITH CTE_LAG_VALUES
+AS
+(
+SELECT 
+[PartyID],
+TRY_CONVERT(DATETIME,[TransactionDate],103) AS transaction_date,
+[TransactionAmount],
+LAG([TransactionAmount]) OVER (PARTITION BY [PartyID] 
+ORDER BY TRY_CONVERT(DATETIME,[TransactionDate],103)) AS previous_spend
+FROM 
+dbo.TransactionData
+)
+
+--now show results  
+SELECT * from CTE_LAG_VALUES
+
+
+
+
+
